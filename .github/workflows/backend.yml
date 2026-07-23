@@ -1,6 +1,8 @@
 name: Backend CI/CD
 
 on:
+  # 手动触发：Actions 页面 "Run workflow" 按钮，可选任意分支部署
+  workflow_dispatch:
   pull_request:
     paths:
       - "BACKEND/japan-disaster-relief-api/**"
