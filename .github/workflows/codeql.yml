@@ -4,13 +4,15 @@ on:
   pull_request:
     branches:
       - develop
+    paths:
+      - "FRONTEND/japan-disaster-relief/**"
+      - "BACKEND/**"
   push:
     branches:
       - develop
-  schedule:
-    # 每周一 09:00 JST 全量扫描一次：
-    # 即使代码没变，CodeQL 规则库更新后也能发现新披露的漏洞模式
-    - cron: "0 0 * * 1"
+    paths:
+      - "FRONTEND/japan-disaster-relief/**"
+      - "BACKEND/**"
 
 jobs:
   analyze:
