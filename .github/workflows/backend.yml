@@ -1,0 +1,66 @@
+name: Backend CI/CD
+
+on:
+  pull_request:
+    paths:
+      - "BACKEND/japan-disaster-relief-api/**"
+      - ".github/workflows/backend.yml"
+  push:
+    branches:
+      - develop
+    paths:
+      - "BACKEND/japan-disaster-relief-api/**"
+      - ".github/workflows/backend.yml"
+
+defaults:
+  run:
+    working-directory: BACKEND/japan-disaster-relief-api
+
+jobs:
+  build:
+    name: Build (Hono + Cloudflare Workers)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: BACKEND/japan-disaster-relief-api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Validate worker bundle
+        run: npx wrangler deploy --dry-run
+
+  deploy:
+    name: Deploy to Cloudflare Workers
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    environment: cloudflare-production
+    concurrency:
+      group: backend-deploy
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: BACKEND/japan-disaster-relief-api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
