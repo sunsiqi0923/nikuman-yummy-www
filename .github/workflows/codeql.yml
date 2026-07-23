@@ -6,21 +6,29 @@ on:
       - develop
     paths:
       - "FRONTEND/japan-disaster-relief/**"
-      - "BACKEND/**"
+      - "BACKEND/japan-disaster-relief-api/**"
   push:
     branches:
       - develop
     paths:
       - "FRONTEND/japan-disaster-relief/**"
-      - "BACKEND/**"
+      - "BACKEND/japan-disaster-relief-api/**"
 
 jobs:
   analyze:
-    name: Analyze (JavaScript/TypeScript)
+    name: Analyze (${{ matrix.component }})
     runs-on: ubuntu-latest
     permissions:
       security-events: write # 允许把扫描结果写入仓库的 Security 标签页
       contents: read
+    strategy:
+      fail-fast: false # 一个组件扫描失败不影响另一个
+      matrix:
+        include:
+          - component: frontend
+            path: FRONTEND/japan-disaster-relief
+          - component: backend
+            path: BACKEND/japan-disaster-relief-api
     steps:
       - uses: actions/checkout@v4
 
@@ -30,8 +38,13 @@ jobs:
           languages: javascript-typescript
           # security-extended: 比默认规则集多覆盖一些安全场景，误报略多但更全面
           queries: security-extended
+          # 限定扫描范围到当前组件目录，避免混入仓库里其他杂项文件
+          config: |
+            paths:
+              - ${{ matrix.path }}
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: /language:javascript-typescript
+          # category 区分同一语言下的不同组件，Security 页面结果互不覆盖
+          category: /language:javascript-typescript/${{ matrix.component }}
