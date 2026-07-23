@@ -27,7 +27,7 @@ Because this site serves the public during disasters, the frontend prioritizes *
 
 ## Backend Integration
 
-The backend is a separate **Node.js** API service (see [`/BACKEND`](../BACKEND/README.md)). The frontend communicates with it over REST APIs (see [`/DOCS/API.md`](../DOCS/API.md)). All data fetching goes through TanStack Query.
+The backend is a separate **Node.js** API service (see [`/BACKEND`](../BACKEND/README.md)). The frontend communicates with it over REST APIs (see [`/DOCS/API.md`](../DOCS/API.md)). Initial server-rendered data may be fetched in Next.js Server Components. Client-side refreshing, caching, and mutations go through TanStack Query.
 
 ## Development Tooling
 
@@ -46,9 +46,18 @@ The backend is a separate **Node.js** API service (see [`/BACKEND`](../BACKEND/R
 - **Internationalization-ready** — Japanese first; the structure should allow adding English and other languages later (e.g. with `next-intl`).
 
 ## Getting Started (planned)
+Create the Next.js application with Cloudflare Workers and OpenNext preconfigured:
 
 ```bash
-npx create-next-app@latest --typescript --tailwind --app
+npm create cloudflare@latest -- japan-disaster-relief --framework=next
 ```
 
-> Versions above are the latest stable releases as of July 2026 and will be pinned in `package.json` when the project is scaffolded.
+During setup, enable TypeScript, Tailwind CSS, ESLint, and the App Router. After scaffolding, pin the selected dependency versions in `package.json` and commit the lockfile.
+
+Use the following development flow:
+
+```bash
+npm run dev       # Fast local development with Next.js
+npm run preview   # Validate the production build in the Workers runtime
+npm run deploy    # Deploy to Cloudflare Workers
+```
