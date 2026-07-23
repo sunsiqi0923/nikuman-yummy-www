@@ -6,7 +6,7 @@ on:
   pull_request:
     paths:
       - "FRONTEND/japan-disaster-relief/**"
-      - "BACKEND/**"
+      - "BACKEND/japan-disaster-relief-api/**"
 
 permissions:
   contents: read
