@@ -1,0 +1,23 @@
+name: Dependency Review
+
+# 事件驱动：只在 PR 时运行，检查这个 PR 新引入/升级的依赖有没有已知漏洞。
+# 依赖没变化的 PR 会秒过。需要仓库开启 Dependency graph（公开仓库默认开启）。
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # 允许把检查结果摘要直接评论到 PR 上
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/dependency-review-action@v4
+        with:
+          # 发现漏洞时在 PR 里留一条摘要评论，不用点进日志看
+          comment-summary-in-pr: on-failure
