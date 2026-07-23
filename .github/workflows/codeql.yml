@@ -1,0 +1,35 @@
+name: CodeQL
+
+on:
+  pull_request:
+    branches:
+      - develop
+  push:
+    branches:
+      - develop
+  schedule:
+    # 每周一 09:00 JST 全量扫描一次：
+    # 即使代码没变，CodeQL 规则库更新后也能发现新披露的漏洞模式
+    - cron: "0 0 * * 1"
+
+jobs:
+  analyze:
+    name: Analyze (JavaScript/TypeScript)
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write # 允许把扫描结果写入仓库的 Security 标签页
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          # security-extended: 比默认规则集多覆盖一些安全场景，误报略多但更全面
+          queries: security-extended
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:javascript-typescript
